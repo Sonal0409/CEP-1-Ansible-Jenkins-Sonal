@@ -1,0 +1,14 @@
+---
+- hosts: webserver
+  become: true
+  tasks:
+  - name: clone the repo with java code on every worker node
+    git: repo=https://github.com/Sonal0409/DevOpsCodeDemo.git dest=/tmp/devopscode-repo
+  - name: Maven to build the code
+    command: chdir=/tmp/devopscode-repo mvn package
+  - name: From target folder copy the addressbook.war in current directory
+    copy: src=/tmp/devopscode-repo/target/addressbook.war dest=/tmp/devopscode-repo remote_src=yes
+  - name: Build the dockerfile
+    command: chdir=/tmp/devopscode-repo  docker build -t myimage:ansiblenew .
+  - name: Run the image to deploy the application on tomcat container
+    command: docker run -d -P myimage:ansiblenew
